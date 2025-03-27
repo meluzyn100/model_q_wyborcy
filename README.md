@@ -1,0 +1,1 @@
+# model_q_wyborcy
