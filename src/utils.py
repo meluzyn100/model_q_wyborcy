@@ -1,5 +1,6 @@
 import networkx as nx
 
+
 def num():
     """Generator liczb całkowitych."""
     i = 0

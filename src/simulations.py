@@ -2,6 +2,7 @@ import numpy as np
 import random as r
 import networkx as nx
 
+
 def loopinf(n, _index, _model, q, type_of_choosing, independene, p, f):
     """Główna pętla symulacji."""
     N_plus = np.sum(_model == 1)

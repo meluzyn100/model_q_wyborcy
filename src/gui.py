@@ -6,7 +6,6 @@ import matplotlib.animation as animation
 from matplotlib import colors
 from src.simulations import gen, loopinf
 from src.utils import num, graph_animate, net_animate
-import networkx as nx
 import numpy as np
 
 
