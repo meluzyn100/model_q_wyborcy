@@ -10,232 +10,153 @@ import networkx as nx
 import numpy as np
 
 
+def create_labels(root):
+    """Create and place labels in the GUI."""
+    labels = [
+        ("N:", 1),
+        ("N_+(0):", 2),
+        ("q:", 3),
+        ("p:", 4),
+        ("f:", 5),
+        ("dt:", 6),
+        ("T:", 7),
+    ]
+    for text, row in labels:
+        label = tk.Label(text=text, font=("Comic Sans MS", 15))
+        label.grid(row=row, column=1, sticky="e")
+
+    # Additional labels for explanations
+    explanations = [
+        ("N - rozmiar układu", 17),
+        ("N_+(0) - początkowa ilość pozytywnych agentów", 18),
+        ("q - rozmiar grupy wpływu", 19),
+        ("p - prawdopodobieństwo niezależności/antykonformizmu", 20),
+        ("f - w niezależności prawdopodobieństwo bycia na nie", 21),
+        (
+            "dt - co ile elementarnych kroków czasowych wyświetlany jest układ (parametr szybkości wyświetlania)",
+            22,
+        ),
+        ("T - czas symulacji (inf - nieskończoność)", 23),
+    ]
+    for text, row in explanations:
+        label = tk.Label(text=text, font=("Comic Sans MS", 15))
+        label.grid(row=row, column=1, columnspan=3, sticky="w")
+
+
+def create_comboboxes(root):
+    """Create and place comboboxes in the GUI."""
+    combobox_data = [
+        ("Wersji nonkonformizmu", ["niezależność", "antykonformizm"], 8, 9),
+        ("Typ losowania", ["powtórzenia", "bezpowtórzen"], 10, 11),
+        ("Graf/siatka", ["graf", "siatka"], 12, 13),
+    ]
+    combobox_vars = []
+    for label_text, choices, label_row, combo_row in combobox_data:
+        label = tk.Label(text=label_text, font=("Comic Sans MS", 15))
+        label.grid(row=label_row, column=1, columnspan=2, sticky="s")
+
+        var = tk.StringVar(value=choices[0])
+        combobox = ttk.Combobox(
+            root, textvariable=var, values=choices, font=("Comic Sans MS", 15)
+        )
+        combobox.grid(row=combo_row, column=1, columnspan=2, sticky="n")
+        combobox_vars.append(var)
+
+    return combobox_vars
+
+
+def create_entries(root):
+    """Create and place entry fields in the GUI."""
+    default_values = ["20", "10", "3", "0.1", "0.5", "1", "Inf"]
+    entry_vars = []
+    for i, default in enumerate(default_values, start=1):
+        var = tk.StringVar(value=default)
+        entry = tk.Entry(root, textvariable=var, font=("Comic Sans MS", 15))
+        entry.grid(row=i, column=2)
+        entry_vars.append(var)
+
+    return entry_vars
+
+
+def create_buttons(
+    root, start_callback, stop_callback, resume_callback, reset_callback
+):
+    """Create and place buttons in the GUI."""
+    buttons = [
+        ("Start", start_callback, 15, 1),
+        ("Stop", stop_callback, 15, 2),
+        ("Resume", resume_callback, 16, 2),
+        ("Restart", reset_callback, 16, 1),
+    ]
+    for text, command, row, column in buttons:
+        button = tk.Button(text=text, command=command, font=("Comic Sans MS", 20))
+        button.grid(row=row, column=column, sticky="ew")
+
+
 def gui():
     """Interfejs graficzny aplikacji."""
     root = tk.Tk()
-
     root.attributes("-zoomed", True)  # .attributes
+    root.title("Model q-wyborcy")
+
     for i in range(25):
         root.rowconfigure(i, weight=1, minsize=20)
     for i in range(6):
         root.columnconfigure(i, weight=1, minsize=20)
-
     root.columnconfigure(4, weight=0)
-    root.title("Model q-wyborcy")
 
-    label2 = tk.Label(text="N:")
-    label2.config(font=("Comic Sans MS", 15))
-    label2.grid(row=1, column=1, sticky="e")
-
-    label3 = tk.Label(text="N_+(0):")
-    label3.config(font=("Comic Sans MS", 15))
-    label3.grid(row=2, column=1, sticky="e")
-
-    label4 = tk.Label(text="q:")
-    label4.config(font=("Comic Sans MS", 15))
-    label4.grid(row=3, column=1, sticky="e")
-
-    label5 = tk.Label(text="p:")
-    label5.config(font=("Comic Sans MS", 15))
-    label5.grid(row=4, column=1, sticky="e")
-
-    label6 = tk.Label(text="f:")
-    label6.config(font=("Comic Sans MS", 15))
-    label6.grid(row=5, column=1, sticky="e")
-
-    label7 = tk.Label(text="dt:")
-    label7.config(font=("Comic Sans MS", 15))
-    label7.grid(row=6, column=1, sticky="e")
-
-    label7 = tk.Label(text="T:")
-    label7.config(font=("Comic Sans MS", 15))
-    label7.grid(row=7, column=1, sticky="e")
-
-    cb_label = tk.Label(text="Wersji nonkonformizmu", font=("Comic Sans MS", 15))
-    cb_label.grid(row=8, column=1, columnspan=2, sticky="s")
-    choices1 = ("niezależność", "antykonformizm")
-    choiceVar1 = tk.StringVar()
-    choiceVar1.set(choices1[0])
-    cb1 = ttk.Combobox(
-        root, textvariable=choiceVar1, values=choices1, font=("Comic Sans MS", 15)
-    )
-    cb1.grid(row=9, column=1, columnspan=2, sticky="n")
-    cb_label = tk.Label(text="Typ losowania", font=("Comic Sans MS", 15))
-    cb_label.grid(row=10, column=1, columnspan=2, sticky="s")
-
-    choices2 = ("powtórzenia", "bezpowtórzen")
-    choiceVar2 = tk.StringVar()
-    choiceVar2.set(choices2[0])
-    cb2 = ttk.Combobox(
-        root, textvariable=choiceVar2, values=choices2, font=("Comic Sans MS", 15)
-    )
-    cb2.grid(row=11, column=1, columnspan=2, sticky="n")
-
-    cb_label = tk.Label(text="Graf/siatka", font=("Comic Sans MS", 15))
-    cb_label.grid(row=12, column=1, columnspan=2, sticky="s")
-    choices3 = ("graf", "siatka")
-    choiceVar3 = tk.StringVar()
-    choiceVar3.set(choices3[0])
-    cb3 = ttk.Combobox(
-        root, textvariable=choiceVar3, values=choices3, font=("Comic Sans MS", 15)
-    )
-    cb3.grid(row=13, column=1, columnspan=2, sticky="n")
-
-    entry_text1 = tk.StringVar()
-    e1 = tk.Entry(textvariable=entry_text1)
-    entry_text1.set("20")
-    e1.config(font=("Comic Sans MS", 15))
-    e1.grid(row=1, column=2)
-
-    entry_text2 = tk.StringVar()
-    e2 = tk.Entry(textvariable=entry_text2)
-    entry_text2.set("10")
-    e2.config(font=("Comic Sans MS", 15))
-    e2.grid(row=2, column=2)
-
-    entry_text3 = tk.StringVar()
-    e3 = tk.Entry(textvariable=entry_text3)
-    entry_text3.set("3")
-    e3.config(font=("Comic Sans MS", 15))
-    e3.grid(row=3, column=2)
-
-    entry_text4 = tk.StringVar()
-    e4 = tk.Entry(textvariable=entry_text4)
-    entry_text4.set("0.1")
-    e4.config(font=("Comic Sans MS", 15))
-    e4.grid(row=4, column=2)
-
-    entry_text5 = tk.StringVar()
-    e5 = tk.Entry(textvariable=entry_text5)
-    entry_text5.set("0.5")
-    e5.config(font=("Comic Sans MS", 15))
-    e5.grid(row=5, column=2)
-
-    entry_text6 = tk.StringVar()
-    e6 = tk.Entry(textvariable=entry_text6)
-    entry_text6.set("1")
-    e6.config(font=("Comic Sans MS", 15))
-    e6.grid(row=6, column=2)
-
-    entry_text6 = tk.StringVar()
-    e7 = tk.Entry(textvariable=entry_text6)
-    entry_text6.set("Inf")
-    e7.config(font=("Comic Sans MS", 15))
-    e7.grid(row=7, column=2)
-
-    label_end2 = tk.Label(text="N - rozmiar układu")
-    label_end2.config(font=("Comic Sans MS", 15))
-    label_end2.grid(row=17, column=1, columnspan=3, sticky="w")
-
-    label_end3 = tk.Label(text="N_+(0) - początkowa ilość pozytywnych agentów")
-    label_end3.config(font=("Comic Sans MS", 15))
-    label_end3.grid(row=18, column=1, columnspan=3, sticky="w")
-
-    label_ene4 = tk.Label(text="q - rozmiar grupy wpływu")
-    label_ene4.config(font=("Comic Sans MS", 15))
-    label_ene4.grid(row=19, column=1, columnspan=3, sticky="w")
-
-    label_ene5 = tk.Label(text="p - prawdopodobieństwo niezależności/antykonformizmu")
-    label_ene5.config(font=("Comic Sans MS", 15))
-    label_ene5.grid(row=20, column=1, columnspan=3, sticky="w")
-
-    label_ene6 = tk.Label(text="f - w niezależności prawdopodobieństwo bycia na nie ")
-    label_ene6.config(font=("Comic Sans MS", 15))
-    label_ene6.grid(row=21, column=1, columnspan=3, sticky="w")
-
-    label_ene7 = tk.Label(
-        text="dt - co ile elementarnych kroków czasowych wyświetlany jest układ (parametr szybkości wyświetlania)"
-    )
-    label_ene7.config(font=("Comic Sans MS", 15))
-    label_ene7.grid(row=22, column=1, columnspan=3, sticky="w")
-
-    label_ene8 = tk.Label(text="T - czas symulacji (inf - nieskączoność)")
-    label_ene8.config(font=("Comic Sans MS", 15))
-    label_ene8.grid(row=23, column=1, columnspan=3, sticky="w")
+    create_labels(root)
+    combobox_vars = create_comboboxes(root)
+    entry_vars = create_entries(root)
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.get_tk_widget().grid(column=3, row=2, rowspan=6)
 
-    def start_anim():
+    def start_animation():
+        """Start the animation based on user inputs."""
         axs[1].set_xlabel("t[MCS]")
         axs[1].set_ylabel("c")
 
-        N = int(e1.get())
-        N_plus = int(e2.get())
+        N = int(entry_vars[0].get())
+        N_plus = int(entry_vars[1].get())
+        q = int(entry_vars[2].get())
+        p = float(entry_vars[3].get())
+        f_p = float(entry_vars[4].get())
+        dx = int(entry_vars[5].get())
+        T = entry_vars[6].get()
+        inf_time = T.lower() == "inf"
+        T = float(T) if not inf_time else 1
+
+        # Retrieve combobox values
+        independence = combobox_vars[0].get() == "niezależność"
+        type_of_choosing = combobox_vars[1].get() == "powtórzenia"
+        is_graph = combobox_vars[2].get() == "graf"
+
+        # Calculate parameters
         N_minus = N - N_plus
-        q = int(e3.get())
-        p = float(e4.get())
-        f_p = float(e5.get())
-        dx = int(e6.get())
+        dt = 1 / (N if is_graph else N**2)
+        nr_of_iterations = int(T * (N if is_graph else N**2) / dx)
+        N_plus_l = [N_plus / (N if is_graph else N**2)]
 
-        if cb1.get() == "niezależność":
-            independene = True
-        else:
-            independene = False
-
-        if cb2.get() == "powtórzenia":
-            type_of_choosing = True
-        else:
-            type_of_choosing = False
-
-        if cb3.get() == "graf":
-            graf = True
-        else:
-            graf = False
-
-        if e7.get().lower() == "inf":
-            inf_time = True
-            T = 1
-        else:
-            T = float(e7.get())
-            inf_time = False
-
-        if graf:
-            nr_of_i = int(T * N / dx)
-            dt = 1 / N
-        else:
-            nr_of_i = int(T * N**2 / dx)
-            dt = 1 / N**2
-
-        if graf:
-            N_plus_l = [N_plus / N]
-
-            data = np.array([1] * N_plus + [-1] * N_minus)
-            np.random.shuffle(data)
-
-            G = nx.Graph()
-            G.add_nodes_from(range(N))
-
-            y = gen(N, N_plus, N_minus, p, q, f_p, type_of_choosing, independene)
+        if is_graph:
+            y = gen(N, N_plus, N_minus, p, q, f_p, type_of_choosing, independence)
             k = num()
 
             canvas = FigureCanvasTkAgg(fig, master=root)
             canvas.get_tk_widget().grid(column=3, row=1, rowspan=7)
 
-            if inf_time:
-                ani = animation.FuncAnimation(
-                    fig,
-                    graph_animate,
-                    interval=1,
-                    blit=False,
-                    fargs=(axs, fig, y, k, N_plus_l, dt, dx),
-                )
-
-            else:
-                ani = animation.FuncAnimation(
-                    fig,
-                    graph_animate,
-                    frames=range(nr_of_i),
-                    interval=1,
-                    blit=False,
-                    repeat=False,
-                    fargs=(axs, fig, y, k, N_plus_l, dt, dx),
-                )
+            ani = animation.FuncAnimation(
+                fig,
+                graph_animate,
+                frames=range(nr_of_iterations) if not inf_time else None,
+                interval=1,
+                blit=False,
+                repeat=False if not inf_time else None,
+                fargs=(axs, fig, y, k, N_plus_l, dt, dx),
+            )
 
         else:
-            N_plus_l = [N_plus / N**2]
-
             cmap = colors.ListedColormap(["red", "green"])
             bounds = [-1.5, 0, 1.5]
             norm = colors.BoundaryNorm(bounds, cmap.N)
@@ -250,65 +171,42 @@ def gui():
             model = np.concatenate([onli_ones, onli_minus_ones])
             np.random.shuffle(model)
             model = model.reshape(n, m_dim)
-            y = loopinf(N, index, model, q, type_of_choosing, independene, p, f_p)
+            y = loopinf(N, index, model, q, type_of_choosing, independence, p, f_p)
             k = num()
 
             canvas = FigureCanvasTkAgg(fig, master=root)
             canvas.get_tk_widget().grid(column=3, row=1, rowspan=7)
 
-            if inf_time:
-                ani = animation.FuncAnimation(
-                    fig,
-                    net_animate,
-                    interval=1,
-                    blit=False,
-                    fargs=(axs, fig, y, k, N_plus_l, dt, dx, N, cmap, norm),
-                )
+            ani = animation.FuncAnimation(
+                fig,
+                net_animate,
+                frames=range(nr_of_iterations) if not inf_time else None,
+                interval=1,
+                blit=False,
+                repeat=False if not inf_time else None,
+                fargs=(axs, fig, y, k, N_plus_l, dt, dx, N, cmap, norm),
+            )
 
-            else:
-                ani = animation.FuncAnimation(
-                    fig,
-                    net_animate,
-                    frames=range(nr_of_i),
-                    interval=1,
-                    blit=False,
-                    repeat=False,
-                    fargs=(axs, fig, y, k, N_plus_l, dt, dx, N, cmap, norm),
-                )
-
-        def stop_anim():
+        def stop_animation():
             ani.event_source.stop()
 
-        def resum_anim():
+        def resume_animation():
             ani.event_source.start()
 
-        def reset_all():
-            ani.event_source.stop()
+        def reset_animation():
+            try:
+                ani.event_source.stop()
+            except AttributeError:
+                pass
             axs[0].clear()
             axs[1].clear()
-            start_anim()
+            start_animation()
 
-        b2 = tk.Button(text="Stop", command=stop_anim)
-        b2.config(font=("Comic Sans MS", 20))
-        b2.grid(row=15, column=2, sticky="ew")
-
-        b4 = tk.Button(text="Restart", command=reset_all)
-        b4.config(font=("Comic Sans MS", 20))
-        b4.grid(row=16, column=1, sticky="ew")
-
-        b3 = tk.Button(text="Resume", command=resum_anim)
-        b3.config(font=("Comic Sans MS", 20))
-        b3.grid(row=16, column=2, sticky="ew")
-
-        b1 = tk.Button(text="Start", command=reset_all)
-        b1.config(font=("Comic Sans MS", 20))
-        b1.grid(row=15, column=1, sticky="ew")
+        create_buttons(
+            root, start_animation, stop_animation, resume_animation, reset_animation
+        )
 
         root.update()
 
-    b1 = tk.Button(text="Start", command=start_anim)
-    b1.config(font=("Comic Sans MS", 20))
-    b1.grid(row=15, column=1, sticky="ew")
-    b1.grid(row=15, column=1, sticky="ew")
-
+    create_buttons(root, start_animation, None, None, None)
     tk.mainloop()
