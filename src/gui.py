@@ -92,6 +92,21 @@ def create_buttons(
         button.grid(row=row, column=column, sticky="ew")
 
 
+def validate_inputs(entry_vars):
+    try:
+        N = int(entry_vars[0].get())
+        q = int(entry_vars[2].get())
+        p = float(entry_vars[3].get())
+        f = float(entry_vars[4].get())
+        dx = int(entry_vars[5].get())
+        
+        assert N > 0 and q > 0 and 0 <= p <= 1 and 0 <= f <= 1 and dx > 0
+        return True
+    except (ValueError, AssertionError):
+        tk.messagebox.showerror("Błąd", "Nieprawidłowe dane wejściowe!")
+        return False
+    
+
 def gui():
     """Interfejs graficzny aplikacji."""
     root = tk.Tk()
@@ -116,6 +131,9 @@ def gui():
         """Start the animation based on user inputs."""
         axs[1].set_xlabel("t[MCS]")
         axs[1].set_ylabel("c")
+
+
+        validate_inputs(entry_vars)
 
         N = int(entry_vars[0].get())
         N_plus = int(entry_vars[1].get())
