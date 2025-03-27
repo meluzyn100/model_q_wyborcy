@@ -21,14 +21,6 @@ Run the application using:
     python main.py
 ```
 
-## Usage Examples
-Below are examples of how to use the application:
-
-1. Simulation with default parameters:
-```bash
-    python main.py
-```
-
 ## Directory Structure
 ```
 model_q_wyborcy/
